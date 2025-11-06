@@ -1,0 +1,105 @@
+{
+  "animal": {
+    "name": "Miuku",
+    "species": "Kissa",
+    "sex": "Naaras",
+    "age_years": 6
+  },
+  "visit": {
+    "owner_report": "Omistaja toi Miukun vastaanotolle, koska se oksentaa ja käyttäytyy oudosti.",
+    "exam_findings": [
+      {
+        "name": "Nestehukka",
+        "severity_level": 1,
+        "severity_scale": "0-3"
+      },
+      {
+        "name": "Lämpötila",
+        "value": 39.3,
+        "unit": "C"
+      },
+      {
+        "name": "Syke",
+        "value": 180,
+        "unit": "Lyöntiä/min",
+        "normal_range": "120-160"
+      },
+      {
+        "name": "Vatsan aristus",
+        "present": true
+      }
+    ]
+  },
+  "symptoms": [
+    { "name": "Oksentelu", "frequency_per_day": 2 },
+    { "name": "Tuijottaa seinää", "duration_seconds": 60 },
+    { "name": "Juoksee ympyrää", "duration_seconds": 30 },
+    { "name": "Vaihtelevа ruokahalu", "intensity_level": 2 },
+    { "name": "Mahdollinen laihtuminen", "certainty_level": 0.6 },
+    { "name": "Äänekäs hengitys", "frequency": "Satunnainen" },
+    { "name": "Vetiset silmät", "present": true },
+    { "name": "Hoitamaton turkki", "present": true }
+  ],
+  "diagnoses": [
+    {
+      "name": "Gastroenteriitti",
+      "category": "Ruoansulatuskanava",
+      "severity_level": 1,
+      "lethality_rate_percent": {
+        "untreated": 2.5,
+        "treated": 0.8
+      },
+      "suspected_causes": ["Virusperäinen", "Stressiin liittyvä"]
+    },
+    {
+      "name": "Nestehukka",
+      "category": "Systeeminen",
+      "secondary_to": "Gastroenteriitti",
+      "severity_level": 1
+    }
+  ],
+  "differential_diagnoses": [
+    { "name": "Karvapallot", "probability_percent": 25 },
+    {
+      "name": "Ruokavirhe",
+      "detail": "Liikaa kinkkua",
+      "probability_percent": 20
+    },
+    { "name": "Lievä ylähengitystieinfektio", "probability_percent": 15 }
+  ],
+  "treatments": [
+    {
+      "name": "Ihonalainen nesteytys",
+      "method": "Ihonalainen",
+      "volume_ml": 150
+    },
+    {
+      "name": "Pahoinvoinnin estolääke",
+      "drug": "Maropitantti",
+      "dose_mg_per_kg": 1
+    },
+    {
+      "name": "Ruokavalion muutos",
+      "diet_type": "Herkkä vatsa",
+      "product": "Hill’s i/d"
+    }
+  ],
+  "home_care": [
+    {
+      "instruction": "Pidä sisällä",
+      "duration_days": 2
+    },
+    {
+      "instruction": "Tarjoa vettä",
+      "availability": "Rajattomasti"
+    },
+    {
+      "instruction": "Vältä kinkkua"
+    }
+  ],
+  "follow_up": {
+    "start_date": "2025-11-04",
+    "end_date": "2025-11-11",
+    "reason": "Oksentelun uusiutumisen seuranta"
+  }
+}
