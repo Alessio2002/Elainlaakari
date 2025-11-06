@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eläinlääkäri Demo: Potilastapaus (Veterinary Case Demo)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Custom styles based on the original index.css, using Inter font */
+        body {
+            background: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #172a3a; /* Dark text colour */
+        }
+
+        /* Responsive container styling */
+        #root {
+            width: 100%;
+            padding: 1rem;
+        }
+        @media (min-width: 640px) {
+            #root {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- 1. PATIENT DATA (From Patient.json) ---
+        const patientData = {
+          "animal": {
+            "name": "Miuku",
+            "species": "Kissa",
+            "sex": "Naaras",
+            "age_years": 6
+          },
+          "visit": {
+            "owner_report": "Omistaja toi Miukun vastaanotolle, koska se oksentaa ja käyttäytyy oudosti.",
+            "exam_findings": [
+              {
+                "name": "Nestehukka (Dehydration)",
+                "severity_level": 1,
+                "severity_scale": "0-3"
+              },
+              {
+                "name": "Lämpötila (Temperature)",
+                "value": 39.3,
+                "unit": "C"
+              },
+              {
+                "name": "Syke (Heart Rate)",
+                "value": 180,
+                "unit": "Lyöntiä/min",
+                "normal_range": "120-160"
+              },
+              {
+                "name": "Vatsan aristus (Abdominal pain)",
+                "present": true
+              }
+            ]
+          },
+          "symptoms": [
+            { "name": "Oksentelu (Vomiting)", "frequency_per_day": 2 },
+            { "name": "Tuijottaa seinää (Stares at wall)", "duration_seconds": 60 },
+            { "name": "Juoksee ympyrää (Runs in circles)", "duration_seconds": 30 },
+            { "name": "Vaihtelevа ruokahalu (Variable appetite)", "intensity_level": 2 },
+            { "name": "Mahdollinen laihtuminen (Possible weight loss)", "certainty_level": 0.6 },
+            { "name": "Hoitamaton turkki (Untreated coat)", "present": true }
+          ],
+          "diagnoses": [
+            {
+              "name": "Gastroenteriitti (Gastroenteritis)",
+              "category": "Ruoansulatuskanava",
+              "severity_level": 1,
+              "lethality_rate_percent": {
+                "untreated": 2.5,
+                "treated": 0.8
+              },
+              "suspected_causes": ["Virusperäinen", "Stressiin liittyvä"]
+            },
+            {
+              "name": "Nestehukka (Dehydration)",
+              "category": "Systeeminen",
+              "secondary_to": "Gastroenteriitti",
+              "severity_level": 1
+            }
+          ],
+          "differential_diagnoses": [
+            { "name": "Karvapallot (Hairballs)", "probability_percent": 25 },
+            {
+              "name": "Ruokavirhe (Dietary error)",
+              "detail": "Liikaa kinkkua",
+              "probability_percent": 20
+            },
+            { "name": "Lievä ylähengitystieinfektio (Mild upper respiratory infection)", "probability_percent": 15 }
+          ],
+          "treatments": [
+            {
+              "name": "Ihonalainen nesteytys (Subcutaneous fluid therapy)",
+              "method": "Ihonalainen",
+              "volume_ml": 150
+            },
+            {
+              "name": "Pahoinvoinnin estolääke (Anti-nausea drug)",
+              "drug": "Maropitantti",
+              "dose_mg_per_kg": 1
+            },
+            {
+              "name": "Ruoansulatuskanavan suoja",
+              "drug": "Sukralfaatti",
+              "dose_mg": 250
+            }
+          ],
+          "home_care": [
+            { "instruction": "Hitaasti palautuva ruokavalio (Recovery diet)", "duration_days": 3, "diet_type": "Helposti sulava" },
+            { "instruction": "Veden juonnin tarkkailu", "availability": "Jatkuva" }
+          ],
+          "follow_up": {
+            "instruction": "Kontrolli tarvittaessa (Follow-up if needed)",
+            "duration": "1-2 päivää"
+          }
+        };
+
+
+        // --- 2. PATIENT CASE COMPONENT (From PatientCase.jsx) ---
+        function PatientCase({ data }) {
+            if (!data) return <div>Ei potilastietoja löytynyt. (No patient data found.)</div>;
+
+            const animal = data.animal || {};
+            const visit = data.visit || {};
+            const examFindings = Array.isArray(visit.exam_findings) ? visit.exam_findings : [];
+            const symptoms = Array.isArray(data.symptoms) ? data.symptoms : [];
+            const diagnoses = Array.isArray(data.diagnoses) ? data.diagnoses : [];
+            const diffDiagnoses = Array.isArray(data.differential_diagnoses) ? data.differential_diagnoses : [];
+            const treatments = Array.isArray(data.treatments) ? data.treatments : [];
+            const homeCare = Array.isArray(data.home_care) ? data.home_care : [];
+            const followUp = data.follow_up || {};
+
+            const SectionTitle = ({ children }) => (
+                <h2 className="text-xl mt-4 font-semibold text-blue-700 border-l-4 border-blue-500 pl-3 py-1 bg-blue-50 rounded-r-md">
+                    {children}
+                </h2>
+            );
+
+            return (
+                <div className="p-6 max-w-2xl mx-auto bg-white rounded-2xl shadow-xl border border-gray-200">
+                    <h1 className="text-3xl font-bold mb-1 text-gray-800">{animal.name ?? "-"}</h1>
+                    <p className="text-gray-600 text-lg border-b border-gray-200 pb-4 mb-4">
+                        {animal.species ?? "-"} ({animal.sex ?? "-"}), {animal.age_years ?? "-"} vuotta
+                    </p>
+
+                    {/* Omistajan kertomus */}
+                    {visit.owner_report && (
+                        <>
+                            <SectionTitle>Omistajan kertomus (Owner's Report)</SectionTitle>
+                            <p className="mt-2 text-gray-700 italic border-l-2 border-gray-300 pl-3">
+                                "{visit.owner_report}"
+                            </p>
+                        </>
+                    )}
+
+                    {/* Tutkimuslöydökset */}
+                    <SectionTitle>Tutkimuslöydökset (Examination Findings)</SectionTitle>
+                    {examFindings.length > 0 ? (
+                        <ul className="list-disc pl-5 mt-2 space-y-1">
+                            {examFindings.map((f, i) => (
+                                <li key={i} className="text-gray-700">
+                                    <span className="font-medium">{f.name ?? "-"}</span>:
+                                    {f.value !== undefined ? (
+                                        <> {f.value} {f.unit ?? ""}</>
+                                    ) : f.present ? (
+                                        " Läsnä (Present)"
+                                    ) : (
+                                        " Ei läsnä (Not Present)"
+                                    )}
+                                    {f.normal_range && <span className="text-sm text-gray-500 ml-2">(Norm: {f.normal_range})</span>}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-gray-500 mt-2">Ei löydöksiä.</p>
+                    )}
+
+                    {/* Oireet */}
+                    <SectionTitle>Oireet (Symptoms)</SectionTitle>
+                    {symptoms.length > 0 ? (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                            {symptoms.map((s, i) => (
+                                <span key={i} className="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded-full">
+                                    {s.name ?? "-"}
+                                </span>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-gray-500 mt-2">Ei oireita.</p>
+                    )}
+
+                    {/* Diagnoosit */}
+                    <SectionTitle>Diagnoosit (Diagnoses)</SectionTitle>
+                    {diagnoses.length > 0 ? (
+                        <ul className="pl-0 mt-2 space-y-3">
+                            {diagnoses.map((d, i) => (
+                                <li key={i} className="border-l-2 border-green-500 pl-3 bg-green-50 p-2 rounded">
+                                    <span className="font-bold text-green-800">{d.name ?? "-"}</span>
+                                    <span className="text-sm text-gray-600"> ({d.category})</span>
+                                    {d.secondary_to && <p className="text-xs text-gray-500">Toissijainen: {d.secondary_to}</p>}
+                                    {d.lethality_rate_percent && (
+                                        <p className="text-xs text-gray-500">Kuolleisuus: {d.lethality_rate_percent.untreated}% (hoitamaton) / {d.lethality_rate_percent.treated}% (hoidettu)</p>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-gray-500 mt-2">Ei diagnooseja.</p>
+                    )}
+
+                    {/* Erotusdiagnoosit */}
+                    <SectionTitle>Erotusdiagnoosit (Differential Diagnoses)</SectionTitle>
+                    {diffDiagnoses.length > 0 ? (
+                        <ul className="pl-4 mt-2 list-disc space-y-1">
+                            {diffDiagnoses.map((dd, i) => (
+                                <li key={i} className="text-gray-700">
+                                    {dd.name ?? "-"} - <span className="font-semibold text-orange-600">{dd.probability_percent}%</span>
+                                    {dd.detail && <span className="text-sm text-gray-500 ml-2">({dd.detail})</span>}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-gray-500 mt-2">Ei erotusdiagnooseja.</p>
+                    )}
+
+                    {/* Hoidot */}
+                    <SectionTitle>Hoidot (Treatments)</SectionTitle>
+                    {treatments.length > 0 ? (
+                        <ul className="list-disc pl-5 mt-2 space-y-1">
+                            {treatments.map((t, i) => (
+                                <li key={i} className="text-gray-700">
+                                    <span className="font-medium">{t.name ?? "-"}</span>
+                                    {t.method ? ` — ${t.method}` : ""}
+                                    {t.volume_ml ? ` (${t.volume_ml} ml)` : ""}
+                                    {t.drug ? `, lääke: ${t.drug}` : ""}
+                                    {t.dose_mg_per_kg ? `, annos: ${t.dose_mg_per_kg} mg/kg` : ""}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-gray-500 mt-2">Ei hoitoja.</p>
+                    )}
+
+                    {/* Kotihoito */}
+                    <SectionTitle>Kotihoito (Home Care)</SectionTitle>
+                    {homeCare.length > 0 ? (
+                        <ul className="list-disc pl-5 mt-2 space-y-1">
+                            {homeCare.map((h, i) => (
+                                <li key={i} className="text-gray-700">
+                                    <span className="font-medium">{h.instruction ?? "-"}</span>
+                                    {h.duration_days ? `, kesto: ${h.duration_days} päivää` : ""}
+                                    {h.diet_type ? `, ruokavalio: ${h.diet_type}` : ""}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-gray-500 mt-2">Ei kotihoito-ohjeita.</p>
+                    )}
+
+                    {/* Kontrolli */}
+                    <SectionTitle>Kontrolli (Follow-up)</SectionTitle>
+                    <p className="text-gray-700 mt-2">
+                        {followUp.instruction ?? "Ei kontrollia."}
+                        {followUp.duration && <span className="ml-1 font-medium">({followUp.duration})</span>}
+                    </p>
+                </div>
+            );
+        }
+
+        // --- 3. MAIN APP COMPONENT (From App.jsx and main.jsx) ---
+        function App() {
+            return <PatientCase data={patientData} />;
+        }
+
+        // --- 4. RENDER THE APP (From main.jsx) ---
+        const container = document.getElementById('root');
+        // Ensure the container exists before creating the root
+        if (container) {
+            const root = ReactDOM.createRoot(container);
+            root.render(<App />);
+        } else {
+            console.error("The root element 'root' was not found in the document.");
+        }
+
+    </script>
+</body>
+</html>
+```eof
